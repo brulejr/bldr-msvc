@@ -1,0 +1,59 @@
+plugins {
+	id 'org.springframework.boot' version '2.2.5.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'com.google.cloud.tools.jib' version '1.8.0'
+	id 'java'
+	id 'jacoco'
+}
+
+group = 'io.jrb.labs'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation "com.google.guava:guava:${GUAVA_VERSION}"
+	implementation "org.apache.commons:commons-lang3"
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.json:json:20190722'
+	testImplementation 'org.mockito:mockito-junit-jupiter'
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+test {
+	useJUnitPlatform()
+	jacoco {
+		destinationFile = file("$buildDir/jacoco/jacoco.exec")
+	}
+}
+
+jib {
+	to {
+		image "brulejr/bldr-msvc"
+		auth {
+			// retrieve from Jenkins
+			username "${System.env.DOCKERHUB_CREDENTIALS_USR}"
+			password "${System.env.DOCKERHUB_CREDENTIALS_PSW}"
+		}
+	}
+}
