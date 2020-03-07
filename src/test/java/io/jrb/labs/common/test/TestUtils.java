@@ -37,6 +37,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+
 public final class TestUtils {
 
     private TestUtils() {}
@@ -53,6 +55,15 @@ public final class TestUtils {
         return mapper;
     };
 
+    public static final Function<Integer, List<String>> RANDOM_STRING_LIST =
+            (size) -> buildList(size, (b) -> b.add(randomAlphanumeric(1, size * 2)));
+
+    public static final Function<Integer, Map<String, List<String>>> RANDOM_STRING_MAP =
+            (size) -> buildMap(size, (builder) -> {
+                final List<String> stanza = buildList(size, (b) -> b.add(randomAlphanumeric(1, size * 2)));
+                builder.put(randomAlphanumeric(1, size * 2), stanza);
+            });
+
     public static final Supplier<String> RANDOM_UUID = () -> UUID.randomUUID().toString();
 
     public static <T> List<T> buildList(final int maxSize, final Consumer<ImmutableList.Builder<T>> consumer) {
@@ -68,5 +79,4 @@ public final class TestUtils {
         IntStream.range(1, size).forEach(i -> consumer.accept(builder));
         return builder.build();
     }
-
 }

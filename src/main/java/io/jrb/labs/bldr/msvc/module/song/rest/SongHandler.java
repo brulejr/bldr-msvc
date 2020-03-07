@@ -28,11 +28,11 @@ import io.jrb.labs.bldr.msvc.module.song.model.SongEntity;
 import io.jrb.labs.bldr.msvc.module.song.model.SongMetadata;
 import io.jrb.labs.common.crud.EntityConverter;
 import io.jrb.labs.common.crud.ICrudService;
-import io.jrb.labs.common.rest.CrudWebHandlerSupport;
+import io.jrb.labs.common.rest.CrudHandlerSupport;
 
-public class SongWebHandler extends CrudWebHandlerSupport<SongEntity, Song, SongMetadata> {
+public class SongHandler extends CrudHandlerSupport<SongEntity, Song, SongMetadata> {
 
-    public SongWebHandler(
+    public SongHandler(
             final ICrudService<SongEntity> crudService,
             final EntityConverter<SongEntity, Song, SongMetadata> entityConverter
     ) {

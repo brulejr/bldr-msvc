@@ -36,7 +36,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public abstract class CrudWebHandlerSupport<E extends Entity<E>, D extends DTO<D>, M extends DTO<M>> {
+public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, M extends DTO<M>> {
 
     private final ICrudService<E> crudService;
     private final EntityConverter<E, D, M> entityConverter;
@@ -44,7 +44,7 @@ public abstract class CrudWebHandlerSupport<E extends Entity<E>, D extends DTO<D
     private final Class<M> dtoMetadataClass;
     private final String dtoIdField;
 
-    protected CrudWebHandlerSupport(
+    protected CrudHandlerSupport(
             final ICrudService<E> crudService,
             final EntityConverter<E, D, M> entityConverter,
             final Class<D> dtoClass,

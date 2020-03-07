@@ -1,33 +1,23 @@
 package io.jrb.labs.bldr.msvc.module.song.service;
 
 import io.jrb.labs.bldr.msvc.module.song.model.SongEntity;
-import io.jrb.labs.bldr.msvc.module.song.model.SongType;
 import io.jrb.labs.bldr.msvc.module.song.repository.ReactiveSongRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static io.jrb.labs.bldr.msvc.module.song.SongTestUtils.createSongEntity;
 import static io.jrb.labs.common.test.TestUtils.RANDOM_UUID;
-import static io.jrb.labs.common.test.TestUtils.buildList;
-import static io.jrb.labs.common.test.TestUtils.buildMap;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,15 +27,6 @@ import static org.mockito.BDDMockito.given;
 class SongServiceTest {
 
     private static final String DETACHED = null;
-
-    private static final Function<Integer, List<String>> RANDOM_STRING_LIST =
-            (size) -> buildList(size, (b) -> b.add(randomAlphanumeric(1, size * 2)));
-
-    private static final Function<Integer, Map<String, List<String>>> RANDOM_STRING_MAP =
-            (size) -> buildMap(size, (builder) -> {
-                final List<String> stanza = buildList(size, (b) -> b.add(randomAlphanumeric(1, size * 2)));
-                builder.put(randomAlphanumeric(1, size * 2), stanza);
-            });
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -154,20 +135,6 @@ class SongServiceTest {
                     );
                 })
                 .verifyComplete();
-    }
-
-
-    private SongEntity createSongEntity(final String id) {
-        final SongEntity.SongEntityBuilder builder = SongEntity.builder()
-                .title(randomAlphanumeric(10, 25))
-                .type(SongType.NORMAL)
-                .authors(RANDOM_STRING_LIST.apply(3))
-                .additionalTitles(RANDOM_STRING_LIST.apply(3))
-                .themes(RANDOM_STRING_LIST.apply(3))
-                .lyricOrder(RANDOM_STRING_LIST.apply(3))
-                .lyrics(RANDOM_STRING_MAP.apply(3));
-        Optional.ofNullable(id).ifPresent(builder::id);
-        return builder.build();
     }
 
 }
