@@ -90,6 +90,8 @@ class SongHandlerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk();
+
+        verify(songService, times(1)).delete(songEntityId);
     }
 
     @Test
@@ -115,6 +117,8 @@ class SongHandlerTest {
                     assertEquals(songEntityMock.getLyricOrder(), s.getLyricOrder());
                     assertEquals(songEntityMock.getLyrics(), s.getLyrics());
                 });
+
+        verify(songService, times(1)).get(songEntityId);
     }
 
     @Test
@@ -137,6 +141,38 @@ class SongHandlerTest {
                     assertEquals(songEntity2.getId(), songList.get(1).getId());
                     assertEquals(songEntity3.getId(), songList.get(2).getId());
                 });
+
+        verify(songService, times(1)).all();
+    }
+
+    @Test
+    void shouldUpdateSongById() {
+        final String songId = RANDOM_UUID.get();
+        final Song song = createSong(songId);
+        final SongEntity songEntity = songEntityConverter.dtoToEntity(song);
+        final SongEntity songEntityMock = createSongEntity(songId);
+
+        when(songService.update(songId, songEntity)).thenReturn(Mono.just(songEntityMock));
+
+        webClient.put()
+                .uri("/api/v1/song/" + songId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(song))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Song.class)
+                .value(s -> {
+                    assertEquals(songId, s.getId());
+                    assertEquals(songEntityMock.getTitle(), s.getTitle());
+                    assertEquals(songEntityMock.getSource(), s.getSource());
+                    assertEquals(songEntityMock.getType(), s.getType());
+                    assertEquals(songEntityMock.getAuthors(), s.getAuthors());
+                    assertEquals(songEntityMock.getAdditionalTitles(), s.getAdditionalTitles());
+                    assertEquals(songEntityMock.getLyricOrder(), s.getLyricOrder());
+                    assertEquals(songEntityMock.getLyrics(), s.getLyrics());
+                });
+
+        verify(songService, times(1)).update(songId, songEntity);
     }
 
 }
