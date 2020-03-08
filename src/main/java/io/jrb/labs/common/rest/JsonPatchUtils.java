@@ -27,8 +27,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import org.springframework.http.MediaType;
 
 public class JsonPatchUtils {
+
+    public static final String APPLICATION_JSON_PATCH_VALUE = "application/json-patch+json";
+    public static final MediaType APPLICATION_JSON_PATCH = MediaType.valueOf(APPLICATION_JSON_PATCH_VALUE);
 
     private JsonPatchUtils() {}
 

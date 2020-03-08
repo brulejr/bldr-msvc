@@ -24,6 +24,7 @@
 package io.jrb.labs.bldr.msvc.module.song.rest;
 
 import io.jrb.labs.bldr.msvc.module.song.config.SongModuleConfig;
+import io.jrb.labs.common.rest.JsonPatchUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -66,7 +67,7 @@ public class SongRouter {
                 songHandler::retrieveEntities
         ).andRoute(
                 PATCH(individualResource)
-                        .and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+                        .and(RequestPredicates.accept(JsonPatchUtils.APPLICATION_JSON_PATCH)),
                 songHandler::patchEntity
         ).andRoute(
                 PUT(individualResource)
