@@ -21,6 +21,7 @@ repositories {
 }
 
 dependencies {
+	implementation "com.github.java-json-tools:json-patch:1.12"
 	implementation "com.google.guava:guava:${GUAVA_VERSION}"
 	implementation "org.apache.commons:commons-lang3"
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'

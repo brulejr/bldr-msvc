@@ -21,24 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.bldr.msvc.module.song.rest;
+package io.jrb.labs.common.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jrb.labs.bldr.msvc.module.song.model.Song;
-import io.jrb.labs.bldr.msvc.module.song.model.SongEntity;
-import io.jrb.labs.bldr.msvc.module.song.model.SongMetadata;
-import io.jrb.labs.common.crud.EntityConverter;
-import io.jrb.labs.common.crud.ICrudService;
-import io.jrb.labs.common.rest.CrudHandlerSupport;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 
-public class SongHandler extends CrudHandlerSupport<SongEntity, Song, SongMetadata> {
+public class JsonPatchUtils {
 
-    public SongHandler(
+    private JsonPatchUtils() {}
+
+    public static <T> T patch(
             final ObjectMapper objectMapper,
-            final ICrudService<SongEntity> crudService,
-            final EntityConverter<SongEntity, Song, SongMetadata> entityConverter
+            final JsonPatch patch,
+            final T targetBean,
+            final Class<T> beanClass
     ) {
-        super(objectMapper, crudService, entityConverter, Song.class, SongMetadata.class, "songId");
+        try {
+            final JsonNode target = objectMapper.convertValue(targetBean, JsonNode.class);
+            final JsonNode patched = patch.apply(target);
+            return objectMapper.convertValue(patched, beanClass);
+        } catch (final JsonPatchException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
 }

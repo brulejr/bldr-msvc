@@ -33,6 +33,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.DELETE;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+import static org.springframework.web.reactive.function.server.RequestPredicates.PATCH;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RequestPredicates.PUT;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
@@ -63,6 +64,10 @@ public class SongRouter {
                 GET(baseResource)
                         .and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
                 songHandler::retrieveEntities
+        ).andRoute(
+                PATCH(individualResource)
+                        .and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+                songHandler::patchEntity
         ).andRoute(
                 PUT(individualResource)
                         .and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),

@@ -23,6 +23,7 @@
  */
 package io.jrb.labs.bldr.msvc.module.song;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jrb.labs.bldr.msvc.module.song.config.SongModuleConfig;
 import io.jrb.labs.bldr.msvc.module.song.model.SongEntityConverter;
 import io.jrb.labs.bldr.msvc.module.song.repository.ReactiveSongRepository;
@@ -59,10 +60,11 @@ public class SongModuleJavaConfig extends ModuleJavaConfigSupport {
 
     @Bean
     public SongHandler songWebHandler(
+            final ObjectMapper objectMapper,
             final ISongService songService,
             final SongEntityConverter songEntityConverter
     ) {
-        return new SongHandler(songService, songEntityConverter);
+        return new SongHandler(objectMapper, songService, songEntityConverter);
     }
 
     @Bean

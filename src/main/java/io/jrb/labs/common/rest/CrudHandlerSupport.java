@@ -23,6 +23,8 @@
  */
 package io.jrb.labs.common.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
 import io.jrb.labs.common.crud.Entity;
 import io.jrb.labs.common.crud.EntityConverter;
 import io.jrb.labs.common.crud.ICrudService;
@@ -36,8 +38,11 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static io.jrb.labs.common.rest.JsonPatchUtils.patch;
+
 public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, M extends DTO<M>> {
 
+    private final ObjectMapper objectMapper;
     private final ICrudService<E> crudService;
     private final EntityConverter<E, D, M> entityConverter;
     private final Class<D> dtoClass;
@@ -45,12 +50,14 @@ public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, 
     private final String dtoIdField;
 
     protected CrudHandlerSupport(
+            final ObjectMapper objectMapper,
             final ICrudService<E> crudService,
             final EntityConverter<E, D, M> entityConverter,
             final Class<D> dtoClass,
             final Class<M> dtoMetadataClass,
             final String dtoIdField
     ) {
+        this.objectMapper = objectMapper;
         this.crudService = crudService;
         this.entityConverter = entityConverter;
         this.dtoClass = dtoClass;
@@ -83,6 +90,22 @@ public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, 
                 .onErrorResume(this::errorResponse);
     }
 
+    public Mono<ServerResponse> patchEntity(final ServerRequest request) {
+        final String dtoId = request.pathVariable(dtoIdField);
+        final Mono<JsonPatch> patchData = request.body(BodyExtractors.toMono(JsonPatch.class));
+        return Mono.just(dtoId)
+                .flatMap(crudService::get)
+                .zipWith(patchData)
+                .map(tuple -> {
+                    final D dto = entityConverter.entityToDto(tuple.getT1());
+                    final D updatedDto = patch(objectMapper, tuple.getT2(), dto, dtoClass);
+                    return entityConverter.dtoToEntity(updatedDto);
+                })
+                .flatMap(entity -> crudService.update(dtoId, entity))
+                .flatMap(this::updatedResponse)
+                .onErrorResume(this::errorResponse);
+    }
+
     public Mono<ServerResponse> retrieveEntities(final ServerRequest request) {
         final Flux<M> dtos = crudService.all()
                 .map(entityConverter::entityToMetadata);
@@ -99,7 +122,7 @@ public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, 
         return dtoData
                 .map(entityConverter::dtoToEntity)
                 .flatMap(entity -> crudService.update(dtoId, entity))
-                .flatMap(this::createdResponse)
+                .flatMap(this::updatedResponse)
                 .onErrorResume(this::errorResponse);
     }
 
@@ -126,6 +149,10 @@ public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, 
     }
 
     protected Mono<ServerResponse> foundResponse(final E entity) {
+        return dtoResponse(entity, HttpStatus.OK);
+    }
+
+    protected Mono<ServerResponse> updatedResponse(final E entity) {
         return dtoResponse(entity, HttpStatus.OK);
     }
 
