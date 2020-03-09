@@ -24,20 +24,10 @@
 package io.jrb.labs.bldr.msvc.module.song.rest;
 
 import io.jrb.labs.bldr.msvc.module.song.config.SongModuleConfig;
-import io.jrb.labs.common.rest.JsonPatchUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
-
-import static org.springframework.web.reactive.function.server.RequestPredicates.DELETE;
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RequestPredicates.PATCH;
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
-import static org.springframework.web.reactive.function.server.RequestPredicates.PUT;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
 public class SongRouter {
@@ -48,32 +38,7 @@ public class SongRouter {
             final SongHandler songHandler
     ) {
         final String baseResource = songModuleConfig.resources().getOrDefault("song", "/song");
-        final String individualResource = baseResource + "/{songId}";
-        return route(
-                POST(baseResource)
-                        .and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
-                songHandler::createEntity
-        ).andRoute(
-                DELETE(individualResource)
-                        .and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
-                songHandler::deleteEntity
-        ).andRoute(
-                GET(individualResource)
-                        .and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
-                songHandler::getEntity
-        ).andRoute(
-                GET(baseResource)
-                        .and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
-                songHandler::retrieveEntities
-        ).andRoute(
-                PATCH(individualResource)
-                        .and(RequestPredicates.accept(JsonPatchUtils.APPLICATION_JSON_PATCH)),
-                songHandler::patchEntity
-        ).andRoute(
-                PUT(individualResource)
-                        .and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
-                songHandler::updateEntity
-        );
+        return songHandler.createCrudEndpoints(baseResource, "songId", songHandler);
     }
 
 }

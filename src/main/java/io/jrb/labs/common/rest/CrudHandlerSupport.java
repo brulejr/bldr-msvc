@@ -40,7 +40,7 @@ import reactor.core.publisher.Mono;
 
 import static io.jrb.labs.common.rest.JsonPatchUtils.patch;
 
-public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, M extends DTO<M>> {
+public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, M extends DTO<M>> implements ICrudHandler<E, D, M> {
 
     private final ObjectMapper objectMapper;
     private final ICrudService<E> crudService;
@@ -65,6 +65,7 @@ public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, 
         this.dtoIdField = dtoIdField;
     }
 
+    @Override
     public Mono<ServerResponse> createEntity(final ServerRequest request) {
         final Mono<D> dtoData = request.body(BodyExtractors.toMono(dtoClass));
         return dtoData
@@ -74,6 +75,7 @@ public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, 
                 .onErrorResume(this::errorResponse);
     }
 
+    @Override
     public Mono<ServerResponse> deleteEntity(final ServerRequest request) {
         final String dtoId = request.pathVariable(dtoIdField);
         return Mono.just(dtoId)
@@ -82,6 +84,7 @@ public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, 
                 .onErrorResume(this::errorResponse);
     }
 
+    @Override
     public Mono<ServerResponse> getEntity(final ServerRequest request) {
         final String dtoId = request.pathVariable(dtoIdField);
         return Mono.just(dtoId)
@@ -90,6 +93,7 @@ public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, 
                 .onErrorResume(this::errorResponse);
     }
 
+    @Override
     public Mono<ServerResponse> patchEntity(final ServerRequest request) {
         final String dtoId = request.pathVariable(dtoIdField);
         final Mono<JsonPatch> patchData = request.body(BodyExtractors.toMono(JsonPatch.class));
@@ -106,6 +110,7 @@ public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, 
                 .onErrorResume(this::errorResponse);
     }
 
+    @Override
     public Mono<ServerResponse> retrieveEntities(final ServerRequest request) {
         final Flux<M> dtos = crudService.all()
                 .map(entityConverter::entityToMetadata);
@@ -116,6 +121,7 @@ public abstract class CrudHandlerSupport<E extends Entity<E>, D extends DTO<D>, 
                 .onErrorResume(this::errorResponse);
     }
 
+    @Override
     public Mono<ServerResponse> updateEntity(final ServerRequest request) {
         final String dtoId = request.pathVariable(dtoIdField);
         final Mono<D> dtoData = request.body(BodyExtractors.toMono(dtoClass));
