@@ -9,9 +9,9 @@ pipeline {
                 sh 'ls -lat'
             }
         }
-        stage ('Build') {
+        stage("Compile") {
             steps {
-                sh './gradlew clean build'
+                sh "./gradlew compileJava"
             }
         }
         stage ('Analysis') {
@@ -21,6 +21,11 @@ pipeline {
                 jacoco(
                     execPattern: 'build/jacoco/jacoco.exec'
                 )
+            }
+        }
+        stage ('Build') {
+            steps {
+                sh './gradlew build'
             }
         }
         stage ('Docker') {
